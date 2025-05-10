@@ -108,7 +108,7 @@
     </div>
     <div id="game-board"></div>
     <div id="game-rules">
-        <p>游戏规则：使用键盘方向键（上、下、左、右）控制卡片移动，相同的卡片会合并成一个数值更大的一酱，目标是合并出数值为 2048 的一酱。</p>
+        <p>游戏规则：使用移动控制卡片，相同的卡片会合并成一个数值更大的一酱，目标是合并出数值为 2048 的一酱。</p>
     </div>
     <div id="win-modal">
         <div id="win-modal-content">
@@ -145,6 +145,59 @@
         let score = 0;
         let highScore = localStorage.getItem('highScore')? parseInt(localStorage.getItem('highScore')) : 0;
         highScoreElement.textContent = `最高分: ${highScore}`;
+
+        // 添加触摸事件相关变量
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        // 处理触摸开始事件
+        function handleTouchStart(event) {
+            touchStartX = event.touches[0].clientX;
+            touchStartY = event.touches[0].clientY;
+        }
+
+        // 处理触摸结束事件
+        function handleTouchEnd(event) {
+            touchEndX = event.changedTouches[0].clientX;
+            touchEndY = event.changedTouches[0].clientY;
+            handleSwipe();
+        }
+
+        // 处理滑动方向
+        function handleSwipe() {
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            
+            // 设置最小滑动距离阈值
+            const minSwipeDistance = 50;
+            
+            // 判断滑动方向
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                // 水平滑动
+                if (Math.abs(deltaX) > minSwipeDistance) {
+                    if (deltaX > 0) {
+                        moveRight();
+                    } else {
+                        moveLeft();
+                    }
+                }
+            } else {
+                // 垂直滑动
+                if (Math.abs(deltaY) > minSwipeDistance) {
+                    if (deltaY > 0) {
+                        moveDown();
+                    } else {
+                        moveUp();
+                    }
+                }
+            }
+        }
+
+        // 添加触摸事件监听器
+        gameBoard.addEventListener('touchstart', handleTouchStart, false);
+        gameBoard.addEventListener('touchend', handleTouchEnd, false);
 
         function createBoard() {
             gameBoard.innerHTML = '';
@@ -281,23 +334,6 @@
             createBoard();
         }
 
-        function handleKeyPress(event) {
-            switch (event.key) {
-                case 'ArrowLeft':
-                    moveLeft();
-                    break;
-                case 'ArrowRight':
-                    moveRight();
-                    break;
-                case 'ArrowUp':
-                    moveUp();
-                    break;
-                case 'ArrowDown':
-                    moveDown();
-                    break;
-            }
-        }
-
         function showWinModal() {
             winModal.style.display = 'flex';
         }
@@ -315,6 +351,25 @@
             scoreElement.textContent = `得分: ${score}`;
         }
 
+        // 键盘控制
+        function handleKeyPress(event) {
+            switch (event.key) {
+                case 'ArrowLeft':
+                    moveLeft();
+                    break;
+                case 'ArrowRight':
+                    moveRight();
+                    break;
+                case 'ArrowUp':
+                    moveUp();
+                    break;
+                case 'ArrowDown':
+                    moveDown();
+                    break;
+            }
+        }
+
+        // 添加键盘事件监听器
         window.addEventListener('keydown', handleKeyPress);
 
         addRandomTile();
