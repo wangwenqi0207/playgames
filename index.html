@@ -77,7 +77,8 @@
             font-size: 14px;
         }
 
-        #win-modal {
+        #win-modal,
+        #game-over-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -89,11 +90,27 @@
             justify-content: center;
         }
 
-        #win-modal-content {
+        #win-modal-content,
+        #game-over-modal-content {
             background-color: white;
             padding: 20px;
             border-radius: 5px;
             text-align: center;
+        }
+
+        button {
+            background-color: #8f7a66;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #7f6a56;
         }
     </style>
 </head>
@@ -116,11 +133,20 @@
             <button onclick="closeWinModal()">确认</button>
         </div>
     </div>
+    <div id="game-over-modal">
+        <div id="game-over-modal-content">
+            <p>游戏结束啦！</p>
+            <p>最终得分：<span id="final-score">0</span></p>
+            <button onclick="restartGame()">重新开始</button>
+        </div>
+    </div>
     <script>
         const gameBoard = document.getElementById('game-board');
         const winModal = document.getElementById('win-modal');
+        const gameOverModal = document.getElementById('game-over-modal');
         const scoreElement = document.getElementById('score');
         const highScoreElement = document.getElementById('high-score');
+        const finalScoreElement = document.getElementById('final-score');
 
         const images = {
             2: './1.jpg',
@@ -263,6 +289,58 @@
             return newRow;
         }
 
+        function isGameOver() {
+            // 检查是否还有空格
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (board[i][j] === 0) {
+                        return false;
+                    }
+                }
+            }
+
+            // 检查是否还有可以合并的相邻格子
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const current = board[i][j];
+                    // 检查右边
+                    if (j < 3 && current === board[i][j + 1]) {
+                        return false;
+                    }
+                    // 检查下边
+                    if (i < 3 && current === board[i + 1][j]) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        function showGameOverModal() {
+            finalScoreElement.textContent = score;
+            gameOverModal.style.display = 'flex';
+        }
+
+        function restartGame() {
+            // 重置游戏板
+            board = [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0]
+            ];
+            // 重置分数
+            score = 0;
+            // 关闭游戏结束模态框
+            gameOverModal.style.display = 'none';
+            // 添加两个初始方块
+            addRandomTile();
+            addRandomTile();
+            // 更新显示
+            createBoard();
+        }
+
         function moveLeft() {
             let moved = false;
             for (let i = 0; i < 4; i++) {
@@ -277,6 +355,9 @@
             }
             updateScore();
             createBoard();
+            if (isGameOver()) {
+                showGameOverModal();
+            }
         }
 
         function moveRight() {
@@ -295,6 +376,9 @@
             }
             updateScore();
             createBoard();
+            if (isGameOver()) {
+                showGameOverModal();
+            }
         }
 
         function moveUp() {
@@ -318,6 +402,9 @@
             }
             updateScore();
             createBoard();
+            if (isGameOver()) {
+                showGameOverModal();
+            }
         }
 
         function moveDown() {
@@ -343,6 +430,9 @@
             }
             updateScore();
             createBoard();
+            if (isGameOver()) {
+                showGameOverModal();
+            }
         }
 
         function showWinModal() {
