@@ -156,6 +156,8 @@
         function handleTouchStart(event) {
             touchStartX = event.touches[0].clientX;
             touchStartY = event.touches[0].clientY;
+            // 阻止默认行为，防止页面滚动
+            event.preventDefault();
         }
 
         // 处理触摸结束事件
@@ -163,6 +165,14 @@
             touchEndX = event.changedTouches[0].clientX;
             touchEndY = event.changedTouches[0].clientY;
             handleSwipe();
+            // 阻止默认行为，防止页面滚动
+            event.preventDefault();
+        }
+
+        // 添加触摸移动事件处理
+        function handleTouchMove(event) {
+            // 阻止默认行为，防止页面滚动
+            event.preventDefault();
         }
 
         // 处理滑动方向
@@ -196,8 +206,9 @@
         }
 
         // 添加触摸事件监听器
-        gameBoard.addEventListener('touchstart', handleTouchStart, false);
-        gameBoard.addEventListener('touchend', handleTouchEnd, false);
+        gameBoard.addEventListener('touchstart', handleTouchStart, { passive: false });
+        gameBoard.addEventListener('touchend', handleTouchEnd, { passive: false });
+        gameBoard.addEventListener('touchmove', handleTouchMove, { passive: false });
 
         function createBoard() {
             gameBoard.innerHTML = '';
