@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>泡泡盲盒</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366F1',
+                        secondary: '#EC4899',
+                        accent: '#8B5CF6',
+                        neutral: '#1F2937',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .bubble-shadow {
+                filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+            }
+            .float-animation {
+                animation: float 8s ease-in-out infinite;
+            }
+            .float-delay-1 {
+                animation: float 8s ease-in-out 1s infinite;
+            }
+            .float-delay-2 {
+                animation: float 8s ease-in-out 2s infinite;
+            }
+            .float-delay-3 {
+                animation: float 8s ease-in-out 3s infinite;
+            }
+            .float-delay-4 {
+                animation: float 8s ease-in-out 4s infinite;
+            }
+            .float-delay-5 {
+                animation: float 8s ease-in-out 5s infinite;
+            }
+            .float-delay-6 {
+                animation: float 8s ease-in-out 6s infinite;
+            }
+            .float-delay-7 {
+                animation: float 8s ease-in-out 7s infinite;
+            }
+            .pop-in {
+                animation: popIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            }
+            .pop-out {
+                animation: popOut 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+            }
+            .shine {
+                position: relative;
+                overflow: hidden;
+            }
+            .shine::after {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(
+                    to bottom right,
+                    rgba(255, 255, 255, 0) 0%,
+                    rgba(255, 255, 255, 0.3) 50%,
+                    rgba(255, 255, 255, 0) 100%
+                );
+                transform: rotate(30deg);
+                animation: shine 6s infinite;
+            }
+            .float-up {
+                animation: floatUp 12s linear infinite;
+            }
+            .float-up-delay-1 { animation: floatUp 12s linear 2s infinite; }
+            .float-up-delay-2 { animation: floatUp 12s linear 4s infinite; }
+            .float-up-delay-3 { animation: floatUp 12s linear 6s infinite; }
+            .float-up-delay-4 { animation: floatUp 12s linear 8s infinite; }
+            .float-up-delay-5 { animation: floatUp 12s linear 10s infinite; }
+            .float-up-delay-6 { animation: floatUp 12s linear 12s infinite; }
+            .float-up-delay-7 { animation: floatUp 12s linear 14s infinite; }
+            .swing-animation {
+                animation: swing 2s ease-in-out infinite;
+                transform-origin: top center;
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-30px) rotate(5deg);
+            }
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes popOut {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) rotate(30deg);
+            }
+            20%, 100% {
+                transform: translateX(100%) rotate(30deg);
+            }
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) translateX(0) scale(1);
+                opacity: 1;
+            }
+            20% {
+                transform: translateY(-10px) translateX(-10px) scale(1.05);
+            }
+            40% {
+                transform: translateY(-30px) translateX(10px) scale(1.1);
+            }
+            60% {
+                transform: translateY(-60px) translateX(-10px) scale(1.05);
+            }
+            80% {
+                transform: translateY(-90px) translateX(10px) scale(1);
+            }
+            100% {
+                transform: translateY(-120px) translateX(0) scale(0.95);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes swing {
+            0% {
+                transform: rotate(-30deg);
+            }
+            50% {
+                transform: rotate(30deg);
+            }
+            100% {
+                transform: rotate(-30deg);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-200 via-indigo-200 to-blue-400 overflow-hidden relative">
+    <div id="nickname-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 bg-opacity-90">
+        <div class="bg-white/80 rounded-2xl shadow-2xl p-8 flex flex-col items-center" style="backdrop-filter: blur(8px);">
+            <div class="w-24 h-24 rounded-full overflow-hidden mb-6 swing-animation">
+                <img src="4.jpg" alt="一酱头像" class="w-full h-full object-cover">
+            </div>
+            <div class="text-2xl font-bold text-indigo-500 mb-4">欢迎光临一酱疗愈泡泡店</div>
+            <div class="text-xl font-bold text-indigo-500 mb-4">我应该怎么称呼你？</div>
+            <input id="nickname-input" type="text" maxlength="8" placeholder="请输入昵称" class="rounded-full px-5 py-3 text-lg border-2 border-indigo-200 focus:border-indigo-400 outline-none mb-4 transition-all duration-200 shadow" style="background:rgba(255,255,255,0.7);">
+            <button id="nickname-btn" class="bg-gradient-to-r from-indigo-400 to-pink-300 text-white rounded-full px-8 py-2 text-lg font-semibold shadow hover:scale-105 transition-all duration-200">开始</button>
+        </div>
+    </div>
+    <div class="absolute inset-0 pointer-events-none z-0" style="background: radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 60%, transparent 100%);"></div>
+    <div id="bubble-container" class="fixed inset-0 pointer-events-none z-10"></div>
+    <div id="message-container" class="fixed top-1/4 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none text-center w-full px-4">
+        <div id="message" class="bg-white/60 backdrop-blur-lg text-neutral-800 py-4 px-8 rounded-2xl shadow-2xl text-xl font-medium pop-in hidden border border-indigo-200" style="box-shadow:0 8px 32px 0 rgba(31,38,135,0.18);"></div>
+    </div>
+
+    <script>
+        let userNickname = '';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('nickname-modal');
+            const input = document.getElementById('nickname-input');
+            const btn = document.getElementById('nickname-btn');
+            input.focus();
+            btn.onclick = () => {
+                const val = input.value.trim();
+                if (val) {
+                    userNickname = val;
+                    modal.style.display = 'none';
+                } else {
+                    input.classList.add('border-red-400');
+                    input.placeholder = '请填写昵称';
+                }
+            };
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter') btn.click();
+            });
+        });
+
+        // 生成随机颜色函数
+        function getRandomGradient() {
+            const hue1 = Math.floor(Math.random() * 360);
+            const hue2 = (hue1 + Math.floor(Math.random() * 120) + 60) % 360;
+            const alpha1 = 0.35 + Math.random() * 0.25;
+            const alpha2 = 0.15 + Math.random() * 0.2;
+            return `radial-gradient(circle at ${Math.random()*80+10}% ${Math.random()*80+10}%, hsla(${hue1}, 90%, 70%, ${alpha1}) 0%, hsla(${hue2}, 90%, 80%, ${alpha2}) 100%)`;
+        }
+
+        // 泡泡颜色配置（使用随机七彩渐变）
+        const bubbleColors = Array.from({length: 20}, getRandomGradient);
+
+        // 爆破后显示的消息
+        const messages = [
+            "女孩子也可以不做'完美'的玫瑰，做野草吧，在风中自由生长。",
+            "你的本性不是被定义的标签，而是未被驯服的野性。",
+            "不要教女儿成为'乖女孩'，教她成为任何她想成为的人。",
+            "女孩子也可以活得'不讨人喜欢'——因为你的存在不是为了取悦世界。",
+            "爱是深深地理解和接受，包括那个曾被自己否定的自己。",
+            "你不需要永远'足够好'，你的存在本身就是值得庆祝的奇迹。",
+            "我看见我的光芒，也拥抱我的裂痕。",
+            "值得被爱≠必须完美",
+            "停止用'优秀'的尺子丈量自己——你不是商品。",
+            "不必用尖锐证明强大，也不必用顺从换取认可。",
+            "爱不是一场必须通关的考试，你不需要用'被选择'来证明自己的价值。",
+            "你不是谁的续集，而是自己人生剧本的原创作者。",
+            "你经历过的黑暗，终将成为照亮他人的萤火。"
+        ];
+
+        // 爆破效果类型
+        const popEffects = [
+            'confetti',
+            'sparkles',
+            'hearts',
+            'stars',
+            'bubbles',
+            'rainbow'
+        ];
+
+        // 获取容器
+        const container = document.getElementById('bubble-container');
+        const messageContainer = document.getElementById('message');
+
+        // 检测设备类型
+        const isMobile = window.innerWidth < 768;
+
+        // 根据设备类型调整泡泡数量
+        const bubbleCount = isMobile ? 300 : 500;
+
+        // 记录当前泡泡总数
+        let bubbleIndex = bubbleCount;
+
+        // 初始化
+        for (let i = 0; i < bubbleCount; i++) {
+            createBubbleAtRandomPosition();
+        }
+
+        // 创建单个泡泡
+        function createBubbleAtRandomPosition() {
+            const bubble = document.createElement('div');
+            // 让泡泡大小分布在较为均匀的区间
+            const minSize = isMobile ? 24 : 36;
+            const maxSize = isMobile ? 48 : 72;
+            const size = Math.floor(Math.random() * (maxSize - minSize)) + minSize;
+            
+            // 全屏幕随机分布
+            const left = Math.random() * (window.innerWidth - size);
+            const top = Math.random() * (window.innerHeight - size);
+            
+            // 随机颜色（使用七彩渐变）
+            const color = getRandomGradient();
+            
+            // 随机浮动动画延迟
+            const animations = [
+                'float-animation', 'float-delay-1', 'float-delay-2', 
+                'float-delay-3', 'float-delay-4', 'float-delay-5',
+                'float-delay-6', 'float-delay-7'
+            ];
+            const animation = animations[Math.floor(Math.random() * animations.length)];
+            
+            // 设置泡泡样式
+            bubble.className = `absolute rounded-full cursor-pointer bubble-shadow ${animation} shine pointer-events-auto transition-all duration-300 hover:scale-110`;
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            bubble.style.left = `${left}px`;
+            bubble.style.top = `${top}px`;
+            bubble.style.background = color;
+            bubble.style.border = '1px solid rgba(255, 255, 255, 0.4)';
+            bubble.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.1), inset 0 4px 15px rgba(255, 255, 255, 0.4), inset 0 -4px 15px rgba(0, 0, 0, 0.05)';
+            
+            // 点击爆破
+            bubble.addEventListener('click', () => handleBubbleClick(bubble));
+            
+            // 动画结束后自动消失并补充新泡泡
+            bubble.addEventListener('animationend', () => {
+                bubble.remove();
+                setTimeout(createBubbleAtRandomPosition, 200 + Math.random() * 800);
+            });
+            
+            container.appendChild(bubble);
+        }
+
+        // 处理泡泡点击事件
+        function handleBubbleClick(bubble) {
+            if (!userNickname) return;
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            const randomEffect = popEffects[Math.floor(Math.random() * popEffects.length)];
+            showMessage(randomMessage);
+            createPopEffect(bubble, randomEffect);
+            setTimeout(() => {
+                bubble.remove();
+                setTimeout(createBubbleAtRandomPosition, 200 + Math.random() * 800);
+            }, 500);
+        }
+
+        // 显示消息
+        function showMessage(text) {
+            messageContainer.classList.add('pop-out');
+            messageContainer.classList.remove('pop-in');
+            setTimeout(() => {
+                messageContainer.innerHTML = `<span class="font-bold text-indigo-500 mr-2">亲爱的${userNickname}</span><span class="font-semibold text-lg md:text-xl drop-shadow">${text}</span>`;
+                messageContainer.classList.remove('hidden', 'pop-out');
+                messageContainer.classList.add('pop-in');
+            }, 300);
+        }
+
+        // 创建爆破效果
+        function createPopEffect(bubble, effectType) {
+            const { left, top, width, height } = bubble.getBoundingClientRect();
+            const centerX = left + width / 2;
+            const centerY = top + height / 2;
+            
+            // 根据设备调整粒子数量
+            const particleCountFactor = isMobile ? 0.6 : 1;
+            
+            switch(effectType) {
+                case 'confetti':
+                    createConfetti(centerX, centerY, Math.floor(120 * particleCountFactor));
+                    break;
+                case 'sparkles':
+                    createSparkles(centerX, centerY, Math.floor(80 * particleCountFactor));
+                    break;
+                case 'hearts':
+                    createHearts(centerX, centerY, Math.floor(40 * particleCountFactor));
+                    break;
+                case 'stars':
+                    createStars(centerX, centerY, Math.floor(50 * particleCountFactor));
+                    break;
+                case 'bubbles':
+                    createMiniBubbles(centerX, centerY, Math.floor(60 * particleCountFactor));
+                    break;
+                case 'rainbow':
+                    createRainbow(centerX, centerY);
+                    break;
+            }
+        }
+
+        // 创建五彩纸屑效果
+        function createConfetti(x, y, count = 120) {
+            const colors = ['#FF5E5E', '#FFD166', '#06D6A0', '#118AB2', '#073B4C', '#9381FF', '#F8F7FF'];
+            
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                // 增大纸屑尺寸
+                const size = Math.random() * 15 + 10; // 原来是 10 + 5
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                confetti.className = 'absolute rounded-sm';
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.backgroundColor = color;
+                confetti.style.left = `${x}px`;
+                confetti.style.top = `${y}px`;
+                confetti.style.position = 'fixed';
+                confetti.style.zIndex = '100';
+                confetti.style.transformOrigin = '0 0';
+                
+                // 随机旋转
+                const rotation = Math.random() * 360;
+                confetti.style.transform = `rotate(${rotation}deg)`;
+                
+                // 添加动画
+                const animationDuration = Math.random() * 2 + 1;
+                const animationDelay = Math.random() * 0.5;
+                const animId = `confetti-${i}`;
+                
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes ${animId} {
+                        0% {
+                            transform: translate(0, 0) rotate(${rotation}deg);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: translate(${Math.random() * 300 - 150}px, ${-Math.random() * 300 - 50}px) rotate(${rotation + 360}deg);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                confetti.style.animation = `${animId} ${animationDuration + 1}s ease-out ${animationDelay}s forwards`;
+                
+                document.body.appendChild(confetti);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    confetti.remove();
+                    style.remove();
+                }, (animationDuration + animationDelay) * 1000);
+            }
+        }
+
+        // 创建星星效果
+        function createStars(x, y, count = 50) {
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                const size = Math.random() * 12 + 8;
+                
+                star.className = 'absolute';
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${x}px`;
+                star.style.top = `${y}px`;
+                star.style.position = 'fixed';
+                star.style.zIndex = '100';
+                
+                // 创建星形
+                star.innerHTML = `<i class="fa-solid fa-star text-yellow-400"></i>`;
+                
+                // 添加动画
+                const animationDuration = Math.random() * 1.5 + 0.5;
+                const animationDelay = Math.random() * 0.3;
+                const animId = `star-${i}`;
+                
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes ${animId} {
+                        0% {
+                            transform: translate(0, 0) scale(1);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) scale(0);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                star.style.animation = `${animId} ${animationDuration + 0.5}s ease-out ${animationDelay}s forwards`;
+                
+                document.body.appendChild(star);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    star.remove();
+                    style.remove();
+                }, (animationDuration + animationDelay) * 1000);
+            }
+        }
+
+        // 创建爱心效果
+        function createHearts(x, y, count = 40) {
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                const size = Math.random() * 24 + 16;
+                heart.className = 'absolute';
+                heart.style.width = `${size}px`;
+                heart.style.height = `${size}px`;
+                heart.style.left = `${x}px`;
+                heart.style.top = `${y}px`;
+                heart.style.position = 'fixed';
+                heart.style.zIndex = '100';
+                heart.innerHTML = `<i class="fa-solid fa-heart" style="color:#FF2E63;font-size:${size}px"></i>`;
+                const animationDuration = Math.random() * 2 + 1.5;
+                const animationDelay = Math.random() * 0.5;
+                const animId = `heart-${i}`;
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes ${animId} {
+                        0% {
+                            transform: translate(0, 0) scale(1);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: translate(${Math.random() * 400 - 200}px, ${Math.random() * 300 - 250}px) scale(0.7);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+                heart.style.animation = `${animId} ${animationDuration}s ease-out ${animationDelay}s forwards`;
+                document.body.appendChild(heart);
+                setTimeout(() => {
+                    heart.remove();
+                    style.remove();
+                }, (animationDuration + animationDelay) * 1000);
+            }
+        }
+
+        // 创建小泡泡效果
+        function createMiniBubbles(x, y, count = 60) {
+            for (let i = 0; i < count; i++) {
+                const bubble = document.createElement('div');
+                const size = Math.random() * 15 + 5;
+                const color = getRandomGradient();
+                
+                bubble.className = 'absolute rounded-full';
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${x}px`;
+                bubble.style.top = `${y}px`;
+                bubble.style.position = 'fixed';
+                bubble.style.zIndex = '100';
+                bubble.style.backgroundColor = color;
+                bubble.style.border = '1px solid rgba(255, 255, 255, 0.6)';
+                
+                // 添加动画
+                const animationDuration = Math.random() * 1.5 + 0.8;
+                const animationDelay = Math.random() * 0.3;
+                const animId = `mini-bubble-${i}`;
+                
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes ${animId} {
+                        0% {
+                            transform: translate(0, 0) scale(1);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) scale(0);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                bubble.style.animation = `${animId} ${animationDuration}s ease-out ${animationDelay}s forwards`;
+                
+                document.body.appendChild(bubble);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    bubble.remove();
+                    style.remove();
+                }, (animationDuration + animationDelay) * 1000);
+            }
+        }
+
+        // 创建火花效果
+        function createSparkles(x, y, count = 80) {
+            for (let i = 0; i < count; i++) {
+                const sparkle = document.createElement('div');
+                // 增大火花尺寸
+                const size = Math.random() * 10 + 4; // 原来是 6 + 2
+                
+                sparkle.className = 'absolute rounded-full';
+                sparkle.style.width = `${size}px`;
+                sparkle.style.height = `${size}px`;
+                sparkle.style.left = `${x}px`;
+                sparkle.style.top = `${y}px`;
+                sparkle.style.position = 'fixed';
+                sparkle.style.zIndex = '100';
+                
+                // 随机颜色
+                const colors = ['#FFD700', '#FFA500', '#FF4500', '#FFFFFF'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                sparkle.style.backgroundColor = color;
+                
+                // 增强发光效果
+                sparkle.style.boxShadow = `0 0 ${size + 4}px ${color}`; // 原来是 size + 2
+                
+                // 添加动画
+                const animationDuration = Math.random() * 1.2 + 0.5;
+                const animationDelay = Math.random() * 0.3;
+                const animId = `sparkle-${i}`;
+                
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes ${animId} {
+                        0% {
+                            transform: translate(0, 0) scale(1);
+                            opacity: 1;
+                        }
+                        50% {
+                            transform: translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) scale(1.5);
+                            opacity: 0.8;
+                        }
+                        100% {
+                            transform: translate(${Math.random() * 300 - 150}px, ${Math.random() * 300 - 150}px) scale(0);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                sparkle.style.animation = `${animId} ${animationDuration}s ease-out ${animationDelay}s forwards`;
+                
+                document.body.appendChild(sparkle);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    sparkle.remove();
+                    style.remove();
+                }, (animationDuration + animationDelay) * 1000);
+            }
+        }
+
+        // 创建彩虹效果
+        function createRainbow(x, y) {
+            const count = 7;
+            const radius = isMobile ? 120 : 180;
+            
+            for (let i = 0; i < count; i++) {
+                const arc = document.createElement('div');
+                const color = `hsl(${(i * 360 / count) % 360}, 100%, 70%)`;
+                const width = radius - (i * 10);
+                
+                arc.className = 'absolute rounded-full border-4';
+                arc.style.width = `${width}px`;
+                arc.style.height = `${width}px`;
+                arc.style.left = `${x - width/2}px`;
+                arc.style.top = `${y - width/2}px`;
+                arc.style.position = 'fixed';
+                arc.style.zIndex = '100';
+                arc.style.borderColor = color;
+                arc.style.borderTopColor = 'transparent';
+                arc.style.borderRightColor = 'transparent';
+                arc.style.opacity = '0.8';
+                
+                // 添加动画
+                const animationDuration = 1.2;
+                const animationDelay = i * 0.05;
+                const animId = `rainbow-${i}`;
+                
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes ${animId} {
+                        0% {
+                            transform: scale(0) rotate(0deg);
+                            opacity: 0.8;
+                        }
+                        70% {
+                            opacity: 0.6;
+                        }
+                        100% {
+                            transform: scale(3) rotate(180deg);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                arc.style.animation = `${animId} ${animationDuration + 0.5}s ease-out ${animationDelay}s forwards`;
+                
+                document.body.appendChild(arc);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    arc.remove();
+                    style.remove();
+                }, (animationDuration + animationDelay) * 1000);
+            }
+        }
+
+        // 定时添加新泡泡，保持数量
+        setInterval(() => {
+            if (container.children.length < bubbleCount) {
+                createBubbleAtRandomPosition();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
+    
